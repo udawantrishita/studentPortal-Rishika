@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d0f14;--bg2:#13161d;--bg3:#1a1e27;--bg4:#21263300;
+  --surface:#1e2330;--surface2:#252b3a;--surface3:#2c3348;
+  --border:#2e3548;--border2:#3a4260;
+  --text:#e8ecf5;--text2:#9aa3bc;--text3:#5d6882;
+  --accent:#6c8fff;--accent2:#4d6ee0;--accent3:#3a57c4;
+  --green:#3dd68c;--green2:#1a7a4a;
+  --amber:#f5a623;--amber2:#7a4f0a;
+  --red:#f05454;--red2:#7a1f1f;
+  --purple:#a78bfa;--purple2:#4c3a8c;
+  --teal:#38bdf8;--teal2:#0c4a6e;
+  --radius:12px;--radius-sm:8px;--radius-lg:16px;
+  --sidebar:240px;
+  --font-head:'Syne',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* AUTH */
+#auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);position:relative;overflow:hidden}
+#auth-screen::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(108,143,255,0.08) 0%,transparent 70%);top:-100px;left:-100px}
+#auth-screen::after{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,0.06) 0%,transparent 70%);bottom:-50px;right:-50px}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:48px;width:420px;position:relative;z-index:1}
+.auth-logo{font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--text);margin-bottom:8px}
+.auth-logo span{color:var(--accent)}
+.auth-subtitle{color:var(--text2);font-size:14px;margin-bottom:40px}
+.auth-tabs{display:flex;gap:4px;background:var(--bg3);border-radius:var(--radius-sm);padding:4px;margin-bottom:32px}
+.auth-tab{flex:1;padding:8px;border:none;border-radius:6px;background:transparent;color:var(--text2);font-family:var(--font-body);font-size:14px;cursor:pointer;transition:.2s}
+.auth-tab.active{background:var(--surface2);color:var(--text)}
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-size:13px;color:var(--text2);margin-bottom:8px;font-weight:500}
+.form-input{width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:.2s}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,143,255,0.1)}
+.form-input::placeholder{color:var(--text3)}
+.role-select{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.role-btn{padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg3);color:var(--text2);cursor:pointer;font-size:13px;transition:.2s;text-align:center}
+.role-btn.selected{border-color:var(--accent);color:var(--accent);background:rgba(108,143,255,0.08)}
+.btn-primary{width:100%;padding:14px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-head);font-weight:600;font-size:15px;cursor:pointer;transition:.2s;letter-spacing:.3px}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0)}
+.error-msg{background:rgba(240,84,84,0.1);border:1px solid rgba(240,84,84,0.3);border-radius:var(--radius-sm);padding:10px 14px;color:var(--red);font-size:13px;margin-bottom:16px}
+.demo-hint{text-align:center;margin-top:20px;font-size:12px;color:var(--text3)}
+.demo-hint span{color:var(--accent);cursor:pointer}
+
+/* LAYOUT */
+#app{display:none;flex-direction:row;min-height:100vh}
+#app.visible{display:flex}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;transition:.3s}
+.sidebar-header{padding:24px 20px;border-bottom:1px solid var(--border)}
+.sidebar-logo{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--text)}
+.sidebar-logo span{color:var(--accent)}
+.sidebar-role{font-size:11px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.8px}
+.nav-section{padding:16px 12px 8px;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-weight:500}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:.2s;color:var(--text2);font-size:14px;margin:2px 0}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(108,143,255,0.12);color:var(--accent)}
+.nav-item .nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600}
+.sidebar-footer{margin-top:auto;padding:16px 12px;border-top:1px solid var(--border)}
+.user-tile{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--radius-sm);cursor:pointer;transition:.2s}
+.user-tile:hover{background:var(--surface2)}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.user-info .user-name{font-size:13px;font-weight:500;color:var(--text)}
+.user-info .user-id{font-size:11px;color:var(--text3)}
+.logout-btn{margin-left:auto;background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px}
+.logout-btn:hover{color:var(--red)}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;padding:32px;min-height:100vh;background:var(--bg)}
+.page{display:none}
+.page.active{display:block}
+.page-header{margin-bottom:32px}
+.page-title{font-family:var(--font-head);font-size:26px;font-weight:700;color:var(--text);margin-bottom:4px}
+.page-subtitle{color:var(--text2);font-size:14px}
+.search-bar{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.search-input{flex:1;padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:.2s}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:var(--text3)}
+
+/* CARDS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:32px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;transition:.2s}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.stat-card::after{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:50%;opacity:.08;transform:translate(20px,-20px)}
+.stat-card.blue::after{background:var(--accent)}
+.stat-card.green::after{background:var(--green)}
+.stat-card.amber::after{background:var(--amber)}
+.stat-card.purple::after{background:var(--purple)}
+.stat-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:14px}
+.stat-icon.blue{background:rgba(108,143,255,0.12);color:var(--accent)}
+.stat-icon.green{background:rgba(61,214,140,0.12);color:var(--green)}
+.stat-icon.amber{background:rgba(245,166,35,0.12);color:var(--amber)}
+.stat-icon.purple{background:rgba(167,139,250,0.12);color:var(--purple)}
+.stat-label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.stat-value{font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--text)}
+.stat-sub{font-size:12px;color:var(--text2);margin-top:4px}
+
+/* TABLES */
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:24px}
+.table-card-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.table-card-title{font-family:var(--font-head);font-size:15px;font-weight:600;color:var(--text)}
+.btn-sm{padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:12px;cursor:pointer;transition:.2s;font-family:var(--font-body)}
+.btn-sm:hover{background:var(--surface3);color:var(--text)}
+.btn-sm.accent{background:rgba(108,143,255,0.12);border-color:rgba(108,143,255,0.3);color:var(--accent)}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{padding:12px 20px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);font-weight:500;border-bottom:1px solid var(--border);background:var(--bg2)}
+.data-table td{padding:14px 20px;font-size:13px;color:var(--text2);border-bottom:1px solid rgba(46,53,72,0.5)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--surface2);color:var(--text)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:rgba(61,214,140,0.12);color:var(--green)}
+.badge-amber{background:rgba(245,166,35,0.12);color:var(--amber)}
+.badge-red{background:rgba(240,84,84,0.12);color:var(--red)}
+.badge-blue{background:rgba(108,143,255,0.12);color:var(--accent)}
+.badge-purple{background:rgba(167,139,250,0.12);color:var(--purple)}
+
+/* GRID 2-COL */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-bottom:24px}
+
+/* ANNOUNCEMENTS */
+.announcement-item{padding:16px;border-bottom:1px solid rgba(46,53,72,0.5);cursor:pointer;transition:.2s}
+.announcement-item:hover{background:var(--surface2)}
+.announcement-item:last-child{border-bottom:none}
+.ann-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.ann-title{font-size:14px;font-weight:500;color:var(--text)}
+.ann-body{font-size:13px;color:var(--text2);line-height:1.5}
+.ann-date{font-size:11px;color:var(--text3)}
+
+/* ATTENDANCE BARS */
+.att-row{margin-bottom:16px}
+.att-header{display:flex;justify-content:space-between;margin-bottom:6px}
+.att-subject{font-size:13px;color:var(--text);font-weight:500}
+.att-pct{font-size:13px;font-weight:600}
+.att-bar{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.att-fill{height:100%;border-radius:4px;transition:width 1s ease}
+
+/* COURSE CARDS */
+.course-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.course-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:.2s}
+.course-card:hover{border-color:var(--border2);transform:translateY(-3px)}
+.course-banner{height:90px;display:flex;align-items:center;justify-content:center;font-size:40px}
+.course-body{padding:16px}
+.course-code{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+.course-name{font-family:var(--font-head);font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px}
+.course-faculty{font-size:12px;color:var(--text2);margin-bottom:12px}
+.course-progress-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.course-progress-fill{height:100%;border-radius:2px}
+
+/* ASSIGNMENT CARDS */
+.assignment-item{display:flex;align-items:flex-start;gap:16px;padding:16px;border-bottom:1px solid rgba(46,53,72,0.5);transition:.2s;cursor:pointer}
+.assignment-item:hover{background:var(--surface2)}
+.assignment-item:last-child{border-bottom:none}
+.assignment-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.assignment-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px}
+.assignment-course{font-size:12px;color:var(--text3)}
+.assignment-meta{margin-left:auto;text-align:right;flex-shrink:0}
+.assignment-due{font-size:12px;color:var(--text2);margin-bottom:4px}
+
+/* PROFILE */
+.profile-header{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;display:flex;align-items:center;gap:24px}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#fff;flex-shrink:0}
+.profile-name{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px}
+.profile-info{color:var(--text2);font-size:14px;margin-bottom:8px}
+.profile-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.profile-form-title{font-family:var(--font-head);font-size:16px;font-weight:600;margin-bottom:20px;color:var(--text)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.btn-outline{padding:10px 20px;border:1px solid var(--border);border-radius:var(--radius-sm);background:transparent;color:var(--text2);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:.2s}
+.btn-outline:hover{border-color:var(--border2);color:var(--text)}
+.btn-accent{padding:10px 20px;border:1px solid var(--accent);border-radius:var(--radius-sm);background:rgba(108,143,255,0.1);color:var(--accent);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:.2s}
+.btn-accent:hover{background:rgba(108,143,255,0.2)}
+.form-actions{display:flex;gap:12px;margin-top:20px}
+
+/* ADMIN */
+.admin-tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px;margin-bottom:24px;width:fit-content}
+.admin-tab{padding:8px 16px;border-radius:6px;background:transparent;border:none;color:var(--text2);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:.2s}
+.admin-tab.active{background:var(--surface2);color:var(--text)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;width:500px;max-width:90vw;max-height:80vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.modal-title{font-family:var(--font-head);font-size:18px;font-weight:600;color:var(--text)}
+.modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;padding:4px;transition:.2s}
+.modal-close:hover{color:var(--text)}
+textarea.form-input{resize:vertical;min-height:100px}
+
+/* UPLOAD */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:32px;text-align:center;cursor:pointer;transition:.2s;margin-top:12px}
+.upload-zone:hover{border-color:var(--accent);background:rgba(108,143,255,0.04)}
+.upload-zone p{color:var(--text2);font-size:14px;margin-top:8px}
+.upload-zone span{color:var(--accent);font-weight:500}
+.upload-icon{font-size:40px;margin-bottom:8px}
+
+/* CHART */
+.chart-container{position:relative;height:220px;margin-top:8px}
+
+/* NOTIFICATION */
+.notif{position:fixed;top:24px;right:24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;font-size:13px;color:var(--text);z-index:300;transform:translateX(120%);transition:.3s;max-width:320px;border-left:3px solid var(--green)}
+.notif.show{transform:translateX(0)}
+.notif.error{border-left-color:var(--red)}
+
+/* DARK MODE TOGGLE */
+.topbar{position:fixed;top:0;right:0;left:var(--sidebar);height:56px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:flex-end;padding:0 32px;gap:16px;z-index:50}
+.topbar-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:8px;border-radius:var(--radius-sm);transition:.2s;display:flex;align-items:center}
+.topbar-btn:hover{background:var(--surface);color:var(--text)}
+.topbar-search{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 14px;font-size:13px;color:var(--text2);cursor:pointer}
+.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--red);position:absolute;top:4px;right:4px}
+.topbar-icon-wrap{position:relative;display:inline-flex}
+
+/* COURSE DETAIL */
+.back-btn{display:flex;align-items:center;gap:8px;color:var(--text2);cursor:pointer;font-size:13px;margin-bottom:20px;transition:.2s;width:fit-content}
+.back-btn:hover{color:var(--text)}
+.syllabus-item{padding:12px 0;border-bottom:1px solid rgba(46,53,72,0.5);display:flex;align-items:center;gap:12px}
+.syllabus-week{font-size:11px;color:var(--text3);width:60px;flex-shrink:0}
+.syllabus-topic{font-size:13px;color:var(--text)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .main{margin-left:0;padding:16px}
+  .main{padding-top:70px}
+  .topbar{left:0}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .grid-2{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .profile-header{flex-direction:column;text-align:center}
+}
+
+/* Light mode */
+body.light{
+  --bg:#f4f5f8;--bg2:#eceef3;--bg3:#e4e6ed;
+  --surface:#ffffff;--surface2:#f0f1f5;--surface3:#e8eaf0;
+  --border:#dde0ea;--border2:#c8ccda;
+  --text:#1a1d2e;--text2:#4a5068;--text3:#8a90a8;
+}
+
+.empty-state{text-align:center;padding:48px;color:var(--text3)}
+.empty-state .empty-icon{font-size:48px;margin-bottom:16px}
+.empty-state p{font-size:14px}
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">Edu<span>Portal</span></div>
+    <div class="auth-subtitle">Student Management System</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+    <div id="auth-error" class="error-msg" style="display:none"></div>
+    
+    <!-- LOGIN -->
+    <div id="login-form">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" id="login-email" placeholder="you@university.edu" value="student@edu.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="login-pwd" placeholder="••••••••" value="password123">
+      </div>
+      <button class="btn-primary" onclick="login()">Sign In →</button>
+      <div class="demo-hint">Demo: <span onclick="fillDemo('student')">Student</span> or <span onclick="fillDemo('admin')">Admin</span></div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="signup-form" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" type="text" id="signup-name" placeholder="Arjun Sharma">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" id="signup-email" placeholder="you@university.edu">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="signup-pwd" placeholder="Create a strong password">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role</label>
+        <div class="role-select">
+          <button class="role-btn selected" id="role-student" onclick="selectRole('student')">🎓 Student</button>
+          <button class="role-btn" id="role-admin" onclick="selectRole('admin')">🛠 Admin</button>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="signup()">Create Account →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">Edu<span>Portal</span></div>
+      <div class="sidebar-role" id="sidebar-role-label">Student Dashboard</div>
+    </div>
+    <div id="student-nav">
+      <div class="nav-section">Main</div>
+      <div class="nav-item active" onclick="goto('dashboard')">
+        <span class="nav-icon">⊞</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="goto('courses')">
+        <span class="nav-icon">📚</span> Courses
+      </div>
+      <div class="nav-item" onclick="goto('assignments')">
+        <span class="nav-icon">📝</span> Assignments
+        <span class="nav-badge">3</span>
+      </div>
+      <div class="nav-item" onclick="goto('attendance')">
+        <span class="nav-icon">📊</span> Attendance
+      </div>
+      <div class="nav-section">Info</div>
+      <div class="nav-item" onclick="goto('announcements')">
+        <span class="nav-icon">📢</span> Announcements
+        <span class="nav-badge" style="background:var(--red)">2</span>
+      </div>
+      <div class="nav-item" onclick="goto('profile')">
+        <span class="nav-icon">👤</span> Profile
+      </div>
+    </div>
+    <div id="admin-nav" style="display:none">
+      <div class="nav-section">Admin</div>
+      <div class="nav-item active" onclick="goto('dashboard')">
+        <span class="nav-icon">⊞</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="goto('admin')">
+        <span class="nav-icon">🛠</span> Admin Panel
+      </div>
+      <div class="nav-item" onclick="goto('announcements')">
+        <span class="nav-icon">📢</span> Announcements
+      </div>
+      <div class="nav-item" onclick="goto('profile')">
+        <span class="nav-icon">👤</span> Profile
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-tile">
+        <div class="user-avatar" id="user-avatar-sidebar">AS</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name-sidebar">Arjun Sharma</div>
+          <div class="user-id" id="user-id-sidebar">STU2024001</div>
+        </div>
+        <button class="logout-btn" onclick="logout()" title="Logout">⏻</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-search" onclick="showSearch()">🔍 Search...</div>
+    <div class="topbar-icon-wrap">
+      <button class="topbar-btn" onclick="showNotifPanel()" title="Notifications">🔔
+        <span class="notif-dot"></span>
+      </button>
+    </div>
+    <button class="topbar-btn" onclick="toggleTheme()" id="theme-btn" title="Toggle theme">🌙</button>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" style="padding-top:88px">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div class="page-title" id="dash-greeting">Good morning, Arjun 👋</div>
+        <div class="page-subtitle">Here's your academic overview for Semester 5</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon blue">📚</div>
+          <div class="stat-label">Enrolled Courses</div>
+          <div class="stat-value">6</div>
+          <div class="stat-sub">Spring 2025</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-label">Assignments Done</div>
+          <div class="stat-value">18</div>
+          <div class="stat-sub">3 pending</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-icon amber">📅</div>
+          <div class="stat-label">Avg Attendance</div>
+          <div class="stat-value">84%</div>
+          <div class="stat-sub">Min required: 75%</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon purple">⭐</div>
+          <div class="stat-label">CGPA</div>
+          <div class="stat-value">8.4</div>
+          <div class="stat-sub">This semester</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Recent Assignments -->
+        <div class="table-card">
+          <div class="table-card-header">
+            <div class="table-card-title">Upcoming Deadlines</div>
+            <button class="btn-sm accent" onclick="goto('assignments')">View All</button>
+          </div>
+          <div id="dash-assignments"></div>
+        </div>
+        <!-- Announcements -->
+        <div class="table-card">
+          <div class="table-card-header">
+            <div class="table-card-title">Latest Announcements</div>
+            <button class="btn-sm accent" onclick="goto('announcements')">View All</button>
+          </div>
+          <div id="dash-announcements"></div>
+        </div>
+      </div>
+
+      <!-- Attendance Mini -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-card-title">Attendance Overview</div>
+          <button class="btn-sm accent" onclick="goto('attendance')">Details</button>
+        </div>
+        <div style="padding:20px" id="dash-attendance"></div>
+      </div>
+    </div>
+
+    <!-- COURSES -->
+    <div class="page" id="page-courses">
+      <div class="page-header">
+        <div class="page-title">My Courses</div>
+        <div class="page-subtitle">6 enrolled courses — Spring 2025</div>
+      </div>
+      <div class="search-bar">
+        <input class="search-input" type="text" placeholder="Search courses..." oninput="filterCourses(this.value)">
+      </div>
+      <div class="course-grid" id="course-grid"></div>
+    </div>
+
+    <!-- COURSE DETAIL -->
+    <div class="page" id="page-course-detail">
+      <div class="back-btn" onclick="goto('courses')">← Back to Courses</div>
+      <div id="course-detail-content"></div>
+    </div>
+
+    <!-- ASSIGNMENTS -->
+    <div class="page" id="page-assignments">
+      <div class="page-header">
+        <div class="page-title">Assignments</div>
+        <div class="page-subtitle">View, submit, and track your assignments</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <button class="btn-sm active" onclick="filterAssignments('all',this)">All</button>
+        <button class="btn-sm" onclick="filterAssignments('pending',this)">Pending</button>
+        <button class="btn-sm" onclick="filterAssignments('submitted',this)">Submitted</button>
+        <button class="btn-sm" onclick="filterAssignments('graded',this)">Graded</button>
+      </div>
+      <div class="table-card" id="assignments-list"></div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div class="page" id="page-attendance">
+      <div class="page-header">
+        <div class="page-title">Attendance</div>
+        <div class="page-subtitle">Subject-wise attendance for this semester</div>
+      </div>
+      <div class="grid-2">
+        <div class="table-card">
+          <div class="table-card-header"><div class="table-card-title">Subject-wise %</div></div>
+          <div style="padding:20px" id="att-bars"></div>
+        </div>
+        <div class="table-card">
+          <div class="table-card-header"><div class="table-card-title">Monthly Trend</div></div>
+          <div style="padding:16px" class="chart-container">
+            <canvas id="att-chart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-card-header"><div class="table-card-title">Detailed Log</div></div>
+        <table class="data-table">
+          <thead><tr><th>Subject</th><th>Total Classes</th><th>Present</th><th>Absent</th><th>Percentage</th><th>Status</th></tr></thead>
+          <tbody id="att-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ANNOUNCEMENTS -->
+    <div class="page" id="page-announcements">
+      <div class="page-header">
+        <div class="page-title">Announcements</div>
+        <div class="page-subtitle">Latest updates from the administration</div>
+      </div>
+      <div id="admin-post-btn" style="display:none;margin-bottom:16px">
+        <button class="btn-primary" style="width:auto;padding:10px 20px" onclick="openAnnModal()">+ Post Announcement</button>
+      </div>
+      <div class="table-card" id="ann-list"></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="page" id="page-profile">
+      <div class="page-header">
+        <div class="page-title">Profile Settings</div>
+        <div class="page-subtitle">Manage your personal information</div>
+      </div>
+      <div class="profile-header">
+        <div class="profile-avatar" id="profile-avatar">AS</div>
+        <div>
+          <div class="profile-name" id="profile-name-display">Arjun Sharma</div>
+          <div class="profile-info">B.Tech Computer Science • Semester 5 • Roll: STU2024001</div>
+          <div style="display:flex;gap:8px">
+            <span class="badge badge-blue">Active Student</span>
+            <span class="badge badge-green">Good Standing</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-form">
+        <div class="profile-form-title">Personal Information</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="pf-name" value="Arjun Sharma"></div>
+          <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="pf-email" value="arjun@edu.com"></div>
+          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="pf-phone" value="+91 9876543210"></div>
+          <div class="form-group"><label class="form-label">Date of Birth</label><input class="form-input" type="date" id="pf-dob" value="2002-08-15"></div>
+          <div class="form-group"><label class="form-label">Department</label><input class="form-input" id="pf-dept" value="Computer Science & Engineering" readonly></div>
+          <div class="form-group"><label class="form-label">Semester</label><input class="form-input" id="pf-sem" value="5th Semester" readonly></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-accent" onclick="saveProfile()">Save Changes</button>
+          <button class="btn-outline">Cancel</button>
+        </div>
+      </div>
+      <div class="profile-form">
+        <div class="profile-form-title">Change Password</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Current Password</label><input class="form-input" type="password" placeholder="••••••••"></div>
+          <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" placeholder="New password"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-accent" onclick="showNotif('Password updated successfully!','success')">Update Password</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div class="page" id="page-admin">
+      <div class="page-header">
+        <div class="page-title">Admin Panel</div>
+        <div class="page-subtitle">Manage students, courses, and content</div>
+      </div>
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="adminTab('students',this)">Students</button>
+        <button class="admin-tab" onclick="adminTab('courses-admin',this)">Courses</button>
+        <button class="admin-tab" onclick="adminTab('assignments-admin',this)">Assignments</button>
+      </div>
+
+      <div id="tab-students">
+        <div class="table-card">
+          <div class="table-card-header">
+            <div class="table-card-title">All Students</div>
+            <button class="btn-sm accent" onclick="openAddStudentModal()">+ Add Student</button>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>ID</th><th>Name</th><th>Course</th><th>Semester</th><th>Attendance</th><th>CGPA</th><th>Status</th></tr></thead>
+            <tbody id="admin-students-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="tab-courses-admin" style="display:none">
+        <div class="table-card">
+          <div class="table-card-header">
+            <div class="table-card-title">All Courses</div>
+            <button class="btn-sm accent">+ Add Course</button>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Code</th><th>Name</th><th>Faculty</th><th>Students</th><th>Credits</th></tr></thead>
+            <tbody id="admin-courses-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="tab-assignments-admin" style="display:none">
+        <div class="table-card">
+          <div class="table-card-header">
+            <div class="table-card-title">Manage Assignments</div>
+            <button class="btn-sm accent" onclick="openUploadAssignModal()">+ Upload Assignment</button>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Title</th><th>Course</th><th>Due Date</th><th>Submissions</th><th>Total</th></tr></thead>
+            <tbody id="admin-assignments-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-submit">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-submit-title">Submit Assignment</div>
+      <button class="modal-close" onclick="closeModal('modal-submit')">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">Notes / Comments</label><textarea class="form-input" placeholder="Add any notes for your submission..."></textarea></div>
+    <div class="upload-zone" onclick="triggerUpload()">
+      <div class="upload-icon">📎</div>
+      <p>Drag and drop your file here or <span>browse files</span></p>
+      <p style="font-size:12px;margin-top:4px;color:var(--text3)">PDF, DOCX, ZIP up to 50MB</p>
+    </div>
+    <div id="upload-preview" style="display:none;margin-top:12px;padding:12px;background:var(--bg3);border-radius:var(--radius-sm)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">📄</span>
+        <div>
+          <div id="upload-fname" style="font-size:13px;font-weight:500;color:var(--text)">report.pdf</div>
+          <div style="font-size:11px;color:var(--text3)">Ready to upload</div>
+        </div>
+        <button style="margin-left:auto;background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px" onclick="clearUpload()">✕</button>
+      </div>
+    </div>
+    <input type="file" id="file-input" style="display:none" onchange="handleFileSelect(this)">
+    <div class="form-actions" style="margin-top:20px">
+      <button class="btn-primary" style="flex:1" onclick="submitAssignment()">Submit Assignment</button>
+      <button class="btn-outline" onclick="closeModal('modal-submit')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-ann">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Post Announcement</div>
+      <button class="modal-close" onclick="closeModal('modal-ann')">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="ann-new-title" placeholder="Announcement title"></div>
+    <div class="form-group"><label class="form-label">Category</label>
+      <select class="form-input" id="ann-new-cat">
+        <option>General</option><option>Exam</option><option>Holiday</option><option>Event</option><option>Result</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Message</label><textarea class="form-input" id="ann-new-body" placeholder="Write your announcement here..."></textarea></div>
+    <div class="form-actions">
+      <button class="btn-primary" style="flex:1" onclick="postAnnouncement()">Post Announcement</button>
+      <button class="btn-outline" onclick="closeModal('modal-ann')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-student">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add New Student</div>
+      <button class="modal-close" onclick="closeModal('modal-add-student')">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="ns-name" placeholder="Student name"></div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="ns-email" placeholder="student@edu.com"></div>
+    <div class="form-group"><label class="form-label">Course</label>
+      <select class="form-input" id="ns-course">
+        <option>B.Tech Computer Science</option>
+        <option>B.Tech Electronics</option>
+        <option>BCA</option>
+        <option>MCA</option>
+      </select>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Semester</label>
+        <select class="form-input" id="ns-sem">
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+          <option>5</option><option>6</option><option>7</option><option>8</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-primary" style="flex:1" onclick="addStudent()">Add Student</button>
+      <button class="btn-outline" onclick="closeModal('modal-add-student')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-upload-assign">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Upload Assignment</div>
+      <button class="modal-close" onclick="closeModal('modal-upload-assign')">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="ua-title" placeholder="Assignment title"></div>
+    <div class="form-group"><label class="form-label">Course</label>
+      <select class="form-input" id="ua-course">
+        <option>CS301 - Data Structures</option>
+        <option>CS302 - DBMS</option>
+        <option>CS303 - OS</option>
+        <option>CS304 - Computer Networks</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Due Date</label><input class="form-input" type="date" id="ua-due"></div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" id="ua-desc" placeholder="Assignment details and requirements..."></textarea></div>
+    <div class="form-actions">
+      <button class="btn-primary" style="flex:1" onclick="uploadAssignment()">Upload Assignment</button>
+      <button class="btn-outline" onclick="closeModal('modal-upload-assign')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION TOAST -->
+<div class="notif" id="notif-toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────
+const DEMO_USERS = [
+  {email:'student@edu.com',pwd:'password123',role:'student',name:'Arjun Sharma',id:'STU2024001',course:'B.Tech CS',sem:'5'},
+  {email:'admin@edu.com',pwd:'admin123',role:'admin',name:'Dr. Priya Nair',id:'ADM001',course:'Faculty',sem:'-'}
+];
+
+let currentUser = null;
+let selectedRole = 'student';
+let currentAssignFilter = 'all';
+let attChartInstance = null;
+
+const COURSES = [
+  {id:'CS301',name:'Data Structures & Algorithms',faculty:'Dr. Rajesh Kumar',credits:4,color:'#1a3a6e',emoji:'🌳',progress:72,students:42},
+  {id:'CS302',name:'Database Management Systems',faculty:'Prof. Sunita Mehta',credits:3,color:'#1a3a4a',emoji:'🗄️',progress:58,students:38},
+  {id:'CS303',name:'Operating Systems',faculty:'Dr. Amit Verma',credits:4,color:'#3a1a4a',emoji:'💻',progress:65,students:45},
+  {id:'CS304',name:'Computer Networks',faculty:'Prof. Anjali Singh',credits:3,color:'#3a2a1a',emoji:'🌐',progress:80,students:40},
+  {id:'MA301',name:'Discrete Mathematics',faculty:'Dr. Ravi Tiwari',credits:3,color:'#1a4a2a',emoji:'∑',progress:45,students:55},
+  {id:'CS305',name:'Software Engineering',faculty:'Prof. Kavita Rao',credits:3,color:'#4a1a1a',emoji:'⚙️',progress:90,students:36},
+];
+
+const SYLLABUS = [
+  {week:'Week 1',topic:'Introduction and Basic Concepts'},
+  {week:'Week 2',topic:'Core Algorithms and Implementation'},
+  {week:'Week 3',topic:'Advanced Topics and Case Studies'},
+  {week:'Week 4',topic:'Lab Exercises and Practicals'},
+  {week:'Week 5',topic:'Mid-Semester Review'},
+  {week:'Week 6-8',topic:'Advanced Modules and Projects'},
+  {week:'Week 9-12',topic:'End-Semester Preparation'},
+];
+
+let ASSIGNMENTS = [
+  {id:1,title:'Binary Search Tree Implementation',course:'CS301',due:'2025-05-15',status:'pending',icon:'🌳',color:'blue',maxScore:100},
+  {id:2,title:'ER Diagram Design Project',course:'CS302',due:'2025-05-18',status:'pending',icon:'🗄️',color:'teal',maxScore:50},
+  {id:3,title:'Process Scheduling Simulator',course:'CS303',due:'2025-05-20',status:'pending',icon:'💻',color:'purple',maxScore:100},
+  {id:4,title:'SQL Query Optimization',course:'CS302',due:'2025-05-10',status:'submitted',icon:'🗄️',color:'teal',maxScore:40},
+  {id:5,title:'Socket Programming Lab',course:'CS304',due:'2025-05-05',status:'graded',icon:'🌐',color:'amber',score:38,maxScore:40},
+  {id:6,title:'Graph Traversal Algorithms',course:'MA301',due:'2025-05-01',status:'graded',icon:'∑',color:'green',score:45,maxScore:50},
+];
+
+let ANNOUNCEMENTS = [
+  {id:1,title:'Mid-Semester Examination Schedule Released',body:'Mid-sem exams will be held from May 25–30, 2025. Check the official timetable on the notice board.',cat:'Exam',date:'May 6, 2025',isNew:true},
+  {id:2,title:'Sports Day Celebration — Registration Open',body:'Annual Sports Day is scheduled for May 15. Register your team by May 10th at the Sports Office.',cat:'Event',date:'May 5, 2025',isNew:true},
+  {id:3,title:'Library Extended Hours During Exams',body:'The central library will remain open until 11 PM during the examination period.',cat:'General',date:'May 3, 2025',isNew:false},
+  {id:4,title:'Internship Fair — Campus Placements',body:'Major IT companies will be visiting for internship placements on May 22. Eligible students in 5th sem and above can register.',cat:'Event',date:'Apr 30, 2025',isNew:false},
+];
+
+let STUDENTS = [
+  {id:'STU001',name:'Arjun Sharma',course:'B.Tech CS',sem:5,att:84,cgpa:8.4,status:'Active'},
+  {id:'STU002',name:'Priya Patel',course:'B.Tech CS',sem:5,att:92,cgpa:9.1,status:'Active'},
+  {id:'STU003',name:'Rohan Gupta',course:'B.Tech CS',sem:5,att:68,cgpa:7.2,status:'Warning'},
+  {id:'STU004',name:'Sneha Iyer',course:'BCA',sem:3,att:95,cgpa:9.4,status:'Active'},
+  {id:'STU005',name:'Karthik Nair',course:'MCA',sem:2,att:71,cgpa:8.0,status:'Active'},
+];
+
+const ATTENDANCE = [
+  {subject:'Data Structures',total:30,present:26},
+  {subject:'DBMS',total:28,present:22},
+  {subject:'Operating Systems',total:32,present:25},
+  {subject:'Computer Networks',total:25,present:23},
+  {subject:'Discrete Math',total:30,present:28},
+  {subject:'Software Engg.',total:20,present:18},
+];
+
+// ── AUTH ──────────────────────────────────────────────
+function switchAuthTab(tab){
+  document.querySelector('.auth-tab.active').classList.remove('active');
+  document.querySelectorAll('.auth-tab')[tab==='login'?0:1].classList.add('active');
+  document.getElementById('login-form').style.display = tab==='login'?'block':'none';
+  document.getElementById('signup-form').style.display = tab==='signup'?'block':'none';
+  document.getElementById('auth-error').style.display='none';
+}
+function selectRole(r){
+  selectedRole=r;
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('role-'+r).classList.add('selected');
+}
+function fillDemo(r){
+  document.getElementById('login-email').value = r==='student'?'student@edu.com':'admin@edu.com';
+  document.getElementById('login-pwd').value = r==='student'?'password123':'admin123';
+}
+function login(){
+  const email=document.getElementById('login-email').value.trim();
+  const pwd=document.getElementById('login-pwd').value;
+  const user=DEMO_USERS.find(u=>u.email===email&&u.pwd===pwd);
+  if(!user){
+    const err=document.getElementById('auth-error');
+    err.textContent='Invalid email or password. Try the demo credentials.';
+    err.style.display='block';
+    return;
+  }
+  currentUser=user;
+  initApp();
+}
+function signup(){
+  const name=document.getElementById('signup-name').value.trim();
+  const email=document.getElementById('signup-email').value.trim();
+  const pwd=document.getElementById('signup-pwd').value;
+  if(!name||!email||!pwd){
+    const err=document.getElementById('auth-error');
+    err.textContent='Please fill in all fields.';
+    err.style.display='block';
+    return;
+  }
+  currentUser={name,email,role:selectedRole,id:selectedRole==='admin'?'ADM00'+(DEMO_USERS.length+1):'STU2024'+(STUDENTS.length+10),course:selectedRole==='admin'?'Faculty':'B.Tech CS',sem:'5'};
+  initApp();
+}
+function logout(){
+  currentUser=null;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('auth-screen').style.display='flex';
+}
+
+// ── INIT APP ──────────────────────────────────────────
+function initApp(){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').classList.add('visible');
+  const u=currentUser;
+  const initials=u.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('user-avatar-sidebar').textContent=initials;
+  document.getElementById('user-name-sidebar').textContent=u.name;
+  document.getElementById('user-id-sidebar').textContent=u.id;
+  document.getElementById('sidebar-role-label').textContent=u.role==='admin'?'Admin Dashboard':'Student Dashboard';
+  document.getElementById('profile-avatar').textContent=initials;
+  document.getElementById('profile-name-display').textContent=u.name;
+  document.getElementById('pf-name').value=u.name;
+  document.getElementById('pf-email').value=u.email;
+  document.getElementById('student-nav').style.display=u.role==='student'?'block':'none';
+  document.getElementById('admin-nav').style.display=u.role==='admin'?'block':'none';
+  document.getElementById('admin-post-btn').style.display=u.role==='admin'?'block':'none';
+  const h=new Date().getHours();
+  const g=h<12?'morning':h<17?'afternoon':'evening';
+  document.getElementById('dash-greeting').textContent=`Good ${g}, ${u.name.split(' ')[0]} 👋`;
+  renderDashboard();
+  renderCourses();
+  renderAssignments();
+  renderAttendance();
+  renderAnnouncements();
+  renderAdminTables();
+  goto('dashboard');
+}
+
+// ── NAVIGATION ────────────────────────────────────────
+function goto(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const target=document.getElementById('page-'+page);
+  if(target) target.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.textContent.toLowerCase().includes(page.replace('-',' '))) n.classList.add('active');
+  });
+}
+
+// ── DASHBOARD ─────────────────────────────────────────
+function renderDashboard(){
+  // Assignments mini
+  const pending=ASSIGNMENTS.filter(a=>a.status==='pending').slice(0,3);
+  document.getElementById('dash-assignments').innerHTML=pending.map(a=>`
+    <div class="assignment-item" onclick="goto('assignments')">
+      <div class="assignment-icon" style="background:rgba(108,143,255,0.1);color:var(--accent)">${a.icon}</div>
+      <div><div class="assignment-title">${a.title}</div><div class="assignment-course">${a.course}</div></div>
+      <div class="assignment-meta"><div class="assignment-due">Due ${a.due}</div><span class="badge badge-amber">Pending</span></div>
+    </div>`).join('');
+
+  // Announcements mini
+  document.getElementById('dash-announcements').innerHTML=ANNOUNCEMENTS.slice(0,3).map(a=>`
+    <div class="announcement-item">
+      <div class="ann-meta">${catBadge(a.cat)}<span class="ann-date">${a.date}</span></div>
+      <div class="ann-title">${a.title}</div>
+    </div>`).join('');
+
+  // Attendance mini
+  document.getElementById('dash-attendance').innerHTML=ATTENDANCE.slice(0,4).map(a=>{
+    const pct=Math.round(a.present/a.total*100);
+    const clr=pct>=75?'var(--green)':pct>=60?'var(--amber)':'var(--red)';
+    return `<div class="att-row">
+      <div class="att-header"><span class="att-subject">${a.subject}</span><span class="att-pct" style="color:${clr}">${pct}%</span></div>
+      <div class="att-bar"><div class="att-fill" style="width:${pct}%;background:${clr}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── COURSES ───────────────────────────────────────────
+function renderCourses(filter=''){
+  const filtered=COURSES.filter(c=>c.name.toLowerCase().includes(filter)||c.id.toLowerCase().includes(filter)||c.faculty.toLowerCase().includes(filter));
+  document.getElementById('course-grid').innerHTML=filtered.map(c=>`
+    <div class="course-card" onclick="showCourseDetail('${c.id}')">
+      <div class="course-banner" style="background:${c.color}20">${c.emoji}</div>
+      <div class="course-body">
+        <div class="course-code">${c.id} • ${c.credits} Credits</div>
+        <div class="course-name">${c.name}</div>
+        <div class="course-faculty">👨‍🏫 ${c.faculty}</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:11px;color:var(--text3)">Progress</span>
+          <span style="font-size:11px;color:var(--text2)">${c.progress}%</span>
+        </div>
+        <div class="course-progress-bar"><div class="course-progress-fill" style="width:${c.progress}%;background:var(--accent)"></div></div>
+      </div>
+    </div>`).join('')||'<div class="empty-state"><div class="empty-icon">🔍</div><p>No courses found</p></div>';
+}
+function filterCourses(v){renderCourses(v.toLowerCase())}
+function showCourseDetail(id){
+  const c=COURSES.find(x=>x.id===id);
+  if(!c) return;
+  document.getElementById('course-detail-content').innerHTML=`
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+      <div style="width:64px;height:64px;border-radius:var(--radius);background:${c.color}20;display:flex;align-items:center;justify-content:center;font-size:32px">${c.emoji}</div>
+      <div>
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--text)">${c.name}</div>
+        <div style="color:var(--text2);font-size:14px">${c.id} • ${c.credits} Credits • ${c.students} Students</div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="table-card">
+        <div class="table-card-header"><div class="table-card-title">Course Info</div></div>
+        <div style="padding:16px">
+          <div style="margin-bottom:12px"><span style="font-size:12px;color:var(--text3)">Faculty</span><div style="font-size:14px;color:var(--text);margin-top:2px">${c.faculty}</div></div>
+          <div style="margin-bottom:12px"><span style="font-size:12px;color:var(--text3)">Progress</span><div style="margin-top:6px"><div class="att-bar"><div class="att-fill" style="width:${c.progress}%;background:var(--accent)"></div></div></div></div>
+          <div><span style="font-size:12px;color:var(--text3)">Materials</span>
+            <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg3);border-radius:var(--radius-sm);font-size:13px;color:var(--text2)">📄 Lecture Notes — Unit 1-4</div>
+              <div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg3);border-radius:var(--radius-sm);font-size:13px;color:var(--text2)">📋 Lab Manual 2025</div>
+              <div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg3);border-radius:var(--radius-sm);font-size:13px;color:var(--text2)">📚 Reference Books List</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-card-header"><div class="table-card-title">Syllabus</div></div>
+        <div style="padding:0 16px">${SYLLABUS.map(s=>`<div class="syllabus-item"><span class="syllabus-week">${s.week}</span><span class="syllabus-topic">${s.topic}</span></div>`).join('')}</div>
+      </div>
+    </div>`;
+  goto('course-detail');
+}
+
+// ── ASSIGNMENTS ───────────────────────────────────────
+let activeAssignId=null;
+function renderAssignments(filter='all'){
+  const filtered=filter==='all'?ASSIGNMENTS:ASSIGNMENTS.filter(a=>a.status===filter);
+  document.getElementById('assignments-list').innerHTML=filtered.map(a=>`
+    <div class="assignment-item">
+      <div class="assignment-icon" style="background:rgba(108,143,255,0.1)">${a.icon}</div>
+      <div style="flex:1">
+        <div class="assignment-title">${a.title}</div>
+        <div class="assignment-course">${a.course} • Max: ${a.maxScore} pts</div>
+      </div>
+      <div class="assignment-meta">
+        <div class="assignment-due">📅 Due: ${a.due}</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:6px;justify-content:flex-end">
+          ${statusBadge(a)}
+          ${a.status==='pending'?`<button class="btn-sm accent" onclick="openSubmitModal(${a.id})">Submit</button>`:''}
+        </div>
+        ${a.status==='graded'?`<div style="font-size:12px;color:var(--green);margin-top:4px">Score: ${a.score}/${a.maxScore}</div>`:''}
+      </div>
+    </div>`).join('')||'<div class="empty-state"><div class="empty-icon">📝</div><p>No assignments in this category</p></div>';
+}
+function filterAssignments(f,btn){
+  currentAssignFilter=f;
+  document.querySelectorAll('.page-assignments .btn-sm').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderAssignments(f);
+}
+function statusBadge(a){
+  if(a.status==='pending') return '<span class="badge badge-amber">Pending</span>';
+  if(a.status==='submitted') return '<span class="badge badge-blue">Submitted</span>';
+  return '<span class="badge badge-green">Graded</span>';
+}
+function openSubmitModal(id){
+  activeAssignId=id;
+  const a=ASSIGNMENTS.find(x=>x.id===id);
+  document.getElementById('modal-submit-title').textContent='Submit: '+a.title;
+  document.getElementById('upload-preview').style.display='none';
+  document.getElementById('modal-submit').classList.add('open');
+}
+function submitAssignment(){
+  if(!activeAssignId) return;
+  const a=ASSIGNMENTS.find(x=>x.id===activeAssignId);
+  if(a) a.status='submitted';
+  renderAssignments(currentAssignFilter);
+  renderDashboard();
+  closeModal('modal-submit');
+  showNotif('Assignment submitted successfully! ✅','success');
+}
+
+// ── ATTENDANCE ────────────────────────────────────────
+function renderAttendance(){
+  document.getElementById('att-bars').innerHTML=ATTENDANCE.map(a=>{
+    const pct=Math.round(a.present/a.total*100);
+    const clr=pct>=75?'var(--green)':pct>=60?'var(--amber)':'var(--red)';
+    return `<div class="att-row">
+      <div class="att-header"><span class="att-subject">${a.subject}</span><span class="att-pct" style="color:${clr}">${pct}%</span></div>
+      <div class="att-bar"><div class="att-fill" style="width:${pct}%;background:${clr}"></div></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('att-table').innerHTML=ATTENDANCE.map(a=>{
+    const pct=Math.round(a.present/a.total*100);
+    const s=pct>=75?['badge-green','Good']:pct>=60?['badge-amber','Low']:['badge-red','Critical'];
+    return `<tr><td style="color:var(--text);font-weight:500">${a.subject}</td><td>${a.total}</td><td style="color:var(--green)">${a.present}</td><td style="color:var(--red)">${a.total-a.present}</td><td style="font-weight:600;color:var(--text)">${pct}%</td><td><span class="badge ${s[0]}">${s[1]}</span></td></tr>`;
+  }).join('');
+
+  setTimeout(()=>{
+    const ctx=document.getElementById('att-chart');
+    if(!ctx) return;
+    if(attChartInstance) attChartInstance.destroy();
+    attChartInstance=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:['Jan','Feb','Mar','Apr','May'],
+        datasets:[{
+          label:'Attendance %',
+          data:[88,82,79,85,84],
+          backgroundColor:'rgba(108,143,255,0.3)',
+          borderColor:'rgba(108,143,255,0.8)',
+          borderWidth:2,
+          borderRadius:6,
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          y:{min:60,max:100,ticks:{color:'#5d6882',font:{size:11}},grid:{color:'rgba(46,53,72,0.5)'}},
+          x:{ticks:{color:'#5d6882',font:{size:11}},grid:{display:false}}
+        }
+      }
+    });
+  },300);
+}
+
+// ── ANNOUNCEMENTS ─────────────────────────────────────
+function catBadge(cat){
+  const map={Exam:'badge-red',Event:'badge-purple',Holiday:'badge-green',Result:'badge-blue',General:'badge-blue'};
+  return `<span class="badge ${map[cat]||'badge-blue'}">${cat}</span>`;
+}
+function renderAnnouncements(){
+  document.getElementById('ann-list').innerHTML=ANNOUNCEMENTS.map(a=>`
+    <div class="announcement-item">
+      <div class="ann-meta">${catBadge(a.cat)}<span class="ann-date">${a.date}</span>${a.isNew?'<span class="badge badge-green" style="font-size:9px;padding:2px 6px">NEW</span>':''}</div>
+      <div class="ann-title">${a.title}</div>
+      <div class="ann-body" style="margin-top:6px">${a.body}</div>
+    </div>`).join('');
+}
+function openAnnModal(){document.getElementById('modal-ann').classList.add('open')}
+function postAnnouncement(){
+  const title=document.getElementById('ann-new-title').value.trim();
+  const body=document.getElementById('ann-new-body').value.trim();
+  const cat=document.getElementById('ann-new-cat').value;
+  if(!title||!body){showNotif('Please fill in all fields','error');return;}
+  ANNOUNCEMENTS.unshift({id:Date.now(),title,body,cat,date:'May 6, 2025',isNew:true});
+  renderAnnouncements();
+  renderDashboard();
+  closeModal('modal-ann');
+  document.getElementById('ann-new-title').value='';
+  document.getElementById('ann-new-body').value='';
+  showNotif('Announcement posted successfully! 📢','success');
+}
+
+// ── ADMIN ─────────────────────────────────────────────
+function renderAdminTables(){
+  document.getElementById('admin-students-table').innerHTML=STUDENTS.map(s=>`
+    <tr>
+      <td style="font-weight:500;color:var(--accent)">${s.id}</td>
+      <td style="color:var(--text);font-weight:500">${s.name}</td>
+      <td>${s.course}</td>
+      <td>Sem ${s.sem}</td>
+      <td><span style="color:${s.att>=75?'var(--green)':s.att>=60?'var(--amber)':'var(--red)'}">${s.att}%</span></td>
+      <td>${s.cgpa}</td>
+      <td><span class="badge ${s.status==='Active'?'badge-green':'badge-amber'}">${s.status}</span></td>
+    </tr>`).join('');
+  document.getElementById('admin-courses-table').innerHTML=COURSES.map(c=>`
+    <tr>
+      <td style="color:var(--accent);font-weight:500">${c.id}</td>
+      <td style="color:var(--text)">${c.name}</td>
+      <td>${c.faculty}</td>
+      <td>${c.students}</td>
+      <td>${c.credits}</td>
+    </tr>`).join('');
+  document.getElementById('admin-assignments-table').innerHTML=ASSIGNMENTS.slice(0,5).map(a=>`
+    <tr>
+      <td style="color:var(--text)">${a.title}</td>
+      <td>${a.course}</td>
+      <td>${a.due}</td>
+      <td style="color:var(--green)">${a.status==='submitted'||a.status==='graded'?Math.floor(Math.random()*30)+5:0}</td>
+      <td>45</td>
+    </tr>`).join('');
+}
+function adminTab(tab,btn){
+  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['students','courses-admin','assignments-admin'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);
+    if(el) el.style.display=t===tab?'block':'none';
+  });
+}
+function openAddStudentModal(){document.getElementById('modal-add-student').classList.add('open')}
+function addStudent(){
+  const name=document.getElementById('ns-name').value.trim();
+  const email=document.getElementById('ns-email').value.trim();
+  const course=document.getElementById('ns-course').value;
+  const sem=document.getElementById('ns-sem').value;
+  if(!name||!email){showNotif('Please fill in all fields','error');return;}
+  const id='STU'+(1000+STUDENTS.length+1);
+  STUDENTS.push({id,name,course,sem:parseInt(sem),att:85,cgpa:8.0,status:'Active'});
+  renderAdminTables();
+  closeModal('modal-add-student');
+  document.getElementById('ns-name').value='';
+  document.getElementById('ns-email').value='';
+  showNotif(`Student ${name} added! 🎓`,'success');
+}
+function openUploadAssignModal(){
+  document.getElementById('ua-due').value='2025-05-30';
+  document.getElementById('modal-upload-assign').classList.add('open');
+}
+function uploadAssignment(){
+  const title=document.getElementById('ua-title').value.trim();
+  const course=document.getElementById('ua-course').value.split(' - ')[0];
+  const due=document.getElementById('ua-due').value;
+  if(!title){showNotif('Please enter a title','error');return;}
+  ASSIGNMENTS.unshift({id:Date.now(),title,course,due,status:'pending',icon:'📋',color:'blue',maxScore:100});
+  renderAssignments(currentAssignFilter);
+  renderDashboard();
+  closeModal('modal-upload-assign');
+  document.getElementById('ua-title').value='';
+  document.getElementById('ua-desc').value='';
+  showNotif('Assignment uploaded for students! 📋','success');
+}
+
+// ── PROFILE ───────────────────────────────────────────
+function saveProfile(){
+  const name=document.getElementById('pf-name').value.trim();
+  if(!name){showNotif('Name cannot be empty','error');return;}
+  currentUser.name=name;
+  const initials=name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('user-avatar-sidebar').textContent=initials;
+  document.getElementById('user-name-sidebar').textContent=name;
+  document.getElementById('profile-avatar').textContent=initials;
+  document.getElementById('profile-name-display').textContent=name;
+  showNotif('Profile updated successfully! ✅','success');
+}
+
+// ── MODALS ────────────────────────────────────────────
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.addEventListener('click',e=>{
+  document.querySelectorAll('.modal-overlay').forEach(m=>{
+    if(e.target===m) m.classList.remove('open');
+  });
+});
+
+// ── FILE UPLOAD ───────────────────────────────────────
+function triggerUpload(){document.getElementById('file-input').click()}
+function handleFileSelect(input){
+  if(input.files&&input.files[0]){
+    document.getElementById('upload-fname').textContent=input.files[0].name;
+    document.getElementById('upload-preview').style.display='block';
+  }
+}
+function clearUpload(){
+  document.getElementById('upload-preview').style.display='none';
+  document.getElementById('file-input').value='';
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────
+function showNotif(msg,type='success'){
+  const el=document.getElementById('notif-toast');
+  el.textContent=msg;
+  el.style.borderLeftColor=type==='success'?'var(--green)':'var(--red)';
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+function showNotifPanel(){showNotif('You have 2 new announcements 🔔','success')}
+function showSearch(){
+  const q=prompt('Search courses, assignments, announcements...');
+  if(q&&q.trim()){
+    const term=q.toLowerCase();
+    const hasCourse=COURSES.some(c=>c.name.toLowerCase().includes(term)||c.id.toLowerCase().includes(term));
+    const hasAnn=ANNOUNCEMENTS.some(a=>a.title.toLowerCase().includes(term));
+    if(hasCourse){goto('courses');filterCourses(term);showNotif(`Showing courses matching "${q}"`);}
+    else if(hasAnn){goto('announcements');showNotif(`Showing announcements matching "${q}"`);}
+    else showNotif(`No results for "${q}"`, 'error');
+  }
+}
+
+// ── THEME ─────────────────────────────────────────────
+let isLight=false;
+function toggleTheme(){
+  isLight=!isLight;
+  document.body.classList.toggle('light',isLight);
+  document.getElementById('theme-btn').textContent=isLight?'🌙':'☀️';
+  if(attChartInstance){
+    attChartInstance.options.scales.y.ticks.color=isLight?'#8a90a8':'#5d6882';
+    attChartInstance.options.scales.x.ticks.color=isLight?'#8a90a8':'#5d6882';
+    attChartInstance.options.scales.y.grid.color=isLight?'rgba(200,204,218,0.5)':'rgba(46,53,72,0.5)';
+    attChartInstance.update();
+  }
+}
+</script>
+</body>
+</html>
